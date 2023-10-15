@@ -13,5 +13,11 @@ def show_img(link):
 #Grayscale Conversion: I = 0.299 * R + 0.587 * G + 0.114 * B
 def gray_scale_img(link):
   gray_img = Image.open(link).convert('L')
-  gray_arr = np.asarray(gray_img)
-  return gray_arr
+  return gray_img
+
+#Gaussian Blurring
+def gaussian_blur_img(gray_img,r=1.5):
+  blurred_img = gray_img.filter(ImageFilter.GaussianBlur(radius=r))
+  blurred_arr = np.asarray(blurred_img)
+  return blurred_arr
+
