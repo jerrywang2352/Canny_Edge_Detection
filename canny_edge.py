@@ -68,3 +68,21 @@ def non_max_suppression(img,direction):
           else:
               suppressed_matrix[i,j] = 0
   return suppressed_matrix
+
+#double threshold
+def double_threshold(suppressed_matrix,lowRatio=0.05,highRatio=0.2,weak=25,strong=255):
+  highThreshold = suppressed_matrix.max() * highRatio 
+  lowThreshold = suppressed_matrix.max() * lowRatio
+
+  rows,columns = suppressed_matrix.shape
+  threshold_matrix = np.zeros((rows,columns),dtype=np.int32)
+
+
+  strong_i, strong_j = np.where(suppressed_matrix >= highThreshold)
+  zeros_i, zeros_j = np.where(suppressed_matrix < lowThreshold)
+  weak_i, weak_j = np.where((suppressed_matrix <= highThreshold) & (suppressed_matrix >= lowThreshold))
+
+  threshold_matrix[strong_i,strong_j] = strong
+  threshold_matrix[weak_i,weak_j] = weak
+  threshold_matrix[zeros_i,zeros_j] = 0
+  return threshold_matrix
