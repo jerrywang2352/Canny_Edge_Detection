@@ -4,7 +4,7 @@ import matplotlib.image as mpimg
 from PIL import Image,ImageFilter
 import math
 
-
+#Show the img
 def show_img(link):
   img = mpimg.imread(link)
   plt.imshow(img)
@@ -86,3 +86,34 @@ def double_threshold(suppressed_matrix,lowRatio=0.05,highRatio=0.2,weak=25,stron
   threshold_matrix[weak_i,weak_j] = weak
   threshold_matrix[zeros_i,zeros_j] = 0
   return threshold_matrix
+
+def hysteresis(threshold_matrix,weak=25,strong=255):
+  rows,cols = threshold_matrix.shape
+  final = np.zeros((rows,cols))
+  for r in range(1,rows-1):
+      for c in range(1,cols-1):
+          if (threshold_matrix[r,c] == weak):
+              if ((threshold_matrix[r+1, c-1] == strong) or (threshold_matrix[r+1, c] == strong) or (threshold_matrix[r+1, c+1] == strong)
+                          or (threshold_matrix[r, c-1] == strong) or (threshold_matrix[r, c+1] == strong)
+                          or (threshold_matrix[r-1, c-1] == strong) or (threshold_matrix[r-1, c] == strong) or (threshold_matrix[r-1, c+1] == strong)):
+                  final[r, c] = strong
+              else:
+                  final[r, c] = 0
+          elif (threshold_matrix[r,c] == strong):
+              final[r,c] = strong
+  return final
+
+def canny_edge_detection(link):
+  gray_scale = gray_scale_img(link)
+  blurred_matrix = gaussian_blur_img(gray_scale)
+  G,direction = gradient_calc(blurred_matrix)
+  suppressed_matrix = non_max_suppression(G,direction)
+  threshold_matrix = double_threshold(suppressed_matrix)
+  final_matrix = hysteresis(threshold_matrix)
+
+  plt.imshow(final_matrix,cmap='gray',vmin=0,vmax=255)
+  plt.show()  
+
+  return final_matrix
+
+canny_edge_detection('lizard.png')
