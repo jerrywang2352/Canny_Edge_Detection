@@ -37,3 +37,34 @@ def gradient_calc(blurred_arr):
           sobel_filtered_direction[i+1,j+1] = math.degrees(math.atan2(gy,gx))
           sobel_filtered_image[i + 1, j + 1] = np.sqrt(gx ** 2 + gy ** 2)  # calculate the "hypotenuse"
   return sobel_filtered_image, sobel_filtered_direction
+
+#Non-maximum suppression 
+def non_max_suppression(img,direction):
+  rows,columns = img.shape
+  suppressed_matrix = np.zeros((rows,columns), dtype=np.int32)
+
+  for i in range(1,rows-1):
+      for j in range(1,columns-1):
+          neg_direction = 255
+          pos_direction = 255
+
+          #check direction for gradient
+          if (0 <= direction[i,j] < 22.5) or (157.5 <= direction[i,j] <= 180):
+              neg_direction = img[i, j+1]
+              pos_direction = img[i, j-1]
+          elif (22.5 <= direction[i,j] < 67.5):
+              neg_direction = img[i+1, j-1]
+              pos_direction = img[i-1, j+1]
+          elif (67.5 <= direction[i,j] < 112.5):
+              neg_direction = img[i+1, j]
+              pos_direction = img[i-1, j]
+          elif (112.5 <= direction[i,j] < 157.5):
+              neg_direction = img[i-1, j-1]
+              pos_direction = img[i+1, j+1]
+          
+          #keep pixel if it is a local maximum 
+          if (img[i,j] >= pos_direction) and (img[i,j] >= neg_direction):
+              suppressed_matrix[i,j] = img[i,j]
+          else:
+              suppressed_matrix[i,j] = 0
+  return suppressed_matrix
