@@ -70,9 +70,9 @@ def non_max_suppression(img,direction):
   return suppressed_matrix
 
 #double threshold
-def double_threshold(suppressed_matrix,lowRatio=0.05,highRatio=0.2,weak=25,strong=255):
+def double_threshold(suppressed_matrix,lowRatio=0.05,highRatio=0.09,weak=25,strong=255):
   highThreshold = suppressed_matrix.max() * highRatio 
-  lowThreshold = suppressed_matrix.max() * lowRatio
+  lowThreshold = highThreshold  * lowRatio
 
   rows,columns = suppressed_matrix.shape
   threshold_matrix = np.zeros((rows,columns),dtype=np.int32)
@@ -111,9 +111,21 @@ def canny_edge_detection(link):
   threshold_matrix = double_threshold(suppressed_matrix)
   final_matrix = hysteresis(threshold_matrix)
 
-  plt.imshow(final_matrix,cmap='gray',vmin=0,vmax=255)
+  original = mpimg.imread(link)
+  fig, (ax1, ax2) = plt.subplots(1, 2)
+
+  ax1.imshow(original)
+  ax2.imshow(final_matrix,cmap='gray',vmin=0,vmax=255)
   plt.show()  
+  ax1.axis('off')
+  ax2.axis('off')
 
   return final_matrix
 
-canny_edge_detection('lizard.png')
+while True:
+  image_path = input("Enter the path of the image: ")
+  try: 
+    canny_edge_detection(image_path)
+    break 
+  except Exception as e:
+     print(f"Error: {e}. Please enter a valid image path.")
